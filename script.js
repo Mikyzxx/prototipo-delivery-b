@@ -188,6 +188,17 @@
     return Number(n).toFixed(2).replace('.', ',') + ' €';
   }
 
+  function eliminarPlato(idPlato) {
+    for (var i = 0; i < pedido.length; i++) {
+      if (pedido[i].idPlato === idPlato) {
+        pedido.splice(i, 1);
+        break;
+      }
+    }
+    actualizarCarritoWidget();
+    pintarResumen();
+  }
+
   function pintarResumen() {
     elListaResumen.innerHTML = '';
     if (pedido.length === 0) {
@@ -209,7 +220,10 @@
         l.cantidad +
         '</span><span class="resumen-precio">' +
         formatEuros(l.precioUnit * l.cantidad) +
-        '</span>';
+        '</span>' +
+        '<button type="button" class="btn-mini btn-mini--danger" data-remove-plato="' +
+        l.idPlato +
+        '">Eliminar</button>';
       elListaResumen.appendChild(li);
     }
     elTotal.textContent = formatEuros(totalPedido());
@@ -292,33 +306,6 @@
     actualizarBotonesAgregar();
   }
 
-  function pintarResumen() {
-    elListaResumen.innerHTML = '';
-    if (pedido.length === 0) {
-      elResumenVacio.hidden = false;
-    } else {
-      elResumenVacio.hidden = true;
-    }
-    for (var i = 0; i < pedido.length; i++) {
-      var l = pedido[i];
-      var li = document.createElement('li');
-      li.className = 'resumen-line';
-      li.innerHTML =
-        '<img class="resumen-thumb" src="' +
-        l.img +
-        '" width="40" height="40" alt="">' +
-        '<span class="resumen-nombre">' +
-        escapeHtml(l.nombre) +
-        ' × ' +
-        l.cantidad +
-        '</span><span class="resumen-precio">' +
-        formatEuros(l.precioUnit * l.cantidad) +
-        '</span>';
-      elListaResumen.appendChild(li);
-    }
-    elTotal.textContent = formatEuros(totalPedido());
-  }
-
   elListaRest.addEventListener('click', function (e) {
     var btn = e.target.closest('[data-rest]');
     if (!btn) return;
@@ -335,6 +322,12 @@
     var precio = parseFloat(b.getAttribute('data-precio'), 10);
     var imgPlato = b.getAttribute('data-img') || '';
     agregarPlato(id, nombre, precio, imgPlato);
+  });
+
+  elListaResumen.addEventListener('click', function (e) {
+    var btn = e.target.closest('[data-remove-plato]');
+    if (!btn) return;
+    eliminarPlato(btn.getAttribute('data-remove-plato'));
   });
 
   document.getElementById('btn-volver-rest').addEventListener('click', function () {
