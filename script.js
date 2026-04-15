@@ -36,6 +36,7 @@
   var restauranteActual = null;
   /** pedido: { idPlato, nombre, precioUnit, cantidad } */
   var pedido = [];
+  var MAX_PLATOS = 10;
 
   var elFiltro = document.getElementById('filtro-cat');
   var elListaRest = document.getElementById('lista-restaurantes');
@@ -86,6 +87,14 @@
     }
   }
 
+  function actualizarBotonesAgregar() {
+    var deshabilitar = totalItems() >= MAX_PLATOS;
+    var botones = elListaPlatos.querySelectorAll('[data-add-plato]');
+    for (var i = 0; i < botones.length; i++) {
+      botones[i].disabled = deshabilitar;
+    }
+  }
+
   function actualizarCarritoWidget() {
     var cantidad = 0;
     for (var i = 0; i < pedido.length; i++) {
@@ -94,6 +103,7 @@
     elCartItemsCount.textContent = cantidad;
     elCartTotal.textContent = formatEuros(totalPedido());
     elBtnCarrito.disabled = cantidad === 0;
+    actualizarBotonesAgregar();
   }
 
   function filtrarRestaurantes() {
@@ -138,7 +148,19 @@
     return null;
   }
 
+  function totalItems() {
+    var cantidad = 0;
+    for (var i = 0; i < pedido.length; i++) {
+      cantidad += pedido[i].cantidad;
+    }
+    return cantidad;
+  }
+
   function agregarPlato(idPlato, nombre, precio, img) {
+    if (totalItems() >= MAX_PLATOS) {
+      alert('Solo puedes agregar hasta ' + MAX_PLATOS + ' platillos.');
+      return;
+    }
     var linea = lineaPedido(idPlato);
     if (linea) {
       linea.cantidad += 1;
@@ -267,6 +289,7 @@
       elListaPlatos.appendChild(li);
     }
     mostrarSoloPanel(elStepProd);
+    actualizarBotonesAgregar();
   }
 
   function pintarResumen() {
